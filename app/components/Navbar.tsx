@@ -55,6 +55,17 @@ export default function Navbar() {
           </a>
         ))}
         <a
+          href="/social"
+          style={{
+            fontSize: 11, letterSpacing: "2px", color: "var(--dim)",
+            textDecoration: "none", transition: "color 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--gold)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--dim)")}
+        >
+          SOCIAL KIT
+        </a>
+        <a
           href="#characters"
           className="btn-outline"
           style={{ padding: "8px 20px", fontSize: 10 }}
