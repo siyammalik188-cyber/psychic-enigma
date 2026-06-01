@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Logo from "./Logo";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -31,19 +32,7 @@ export default function Navbar() {
     >
       {/* Logo */}
       <a href="#hero" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}>
-        <div style={{ position: "relative", width: 28, height: 28, flexShrink: 0 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: "50%",
-            border: "1.5px solid rgba(201,168,76,0.7)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <div style={{
-              width: 10, height: 10, borderRadius: "50%",
-              background: "var(--bg)",
-              border: "1px solid rgba(201,168,76,0.25)",
-            }} />
-          </div>
-        </div>
+        <Logo size={32} />
         <span style={{ fontSize: 12, letterSpacing: "3px", color: "var(--gold)", fontWeight: 600 }}>
           ECHO OF THE VOID KING
         </span>
