@@ -55,17 +55,17 @@ export default function Hero() {
             <span className="section-label">MANGA SERIES · 3 ARCS · 15 CHAPTERS</span>
           </div>
 
-          <p style={{ fontSize: 20, color: "var(--dim)", letterSpacing: "3px", marginBottom: 8 }}>
+          <p className="font-cinzel" style={{ fontSize: 16, color: "var(--dim)", letterSpacing: "6px", marginBottom: 8 }}>
             ECHO OF THE
           </p>
           <h1
-            className="glow-gold"
+            className="glow-gold font-cinzel"
             style={{
               fontSize: "clamp(64px, 8vw, 108px)",
               fontWeight: 800,
               color: "var(--gold)",
               lineHeight: 0.9,
-              letterSpacing: "2px",
+              letterSpacing: "4px",
               marginBottom: 32,
             }}
           >

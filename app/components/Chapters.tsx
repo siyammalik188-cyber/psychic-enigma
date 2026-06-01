@@ -1,124 +1,136 @@
-const chapters = [
-  // Arc I
-  { num: "I",    arc: 1, title: "The Boy With No Light",         tagline: "Kairu discovers what he is.",               color: "rgba(201,168,76,0.08)" },
-  { num: "II",   arc: 1, title: "The Ghost in the Graveyard",    tagline: "He is not alone.",                          color: "rgba(201,168,76,0.06)" },
-  { num: "III",  arc: 1, title: "Half a Soul",                   tagline: "The split is revealed.",                    color: "rgba(201,168,76,0.07)" },
-  { num: "IV",   arc: 1, title: "Running Without a Shadow",      tagline: "The Enforcers begin the hunt.",             color: "rgba(201,168,76,0.05)" },
-  { num: "V",    arc: 1, title: "The Graveyard's Edge",          tagline: "Nowhere left to run.",                      color: "rgba(201,168,76,0.08)" },
-  // Arc II
-  { num: "VI",   arc: 2, title: "Wings of Judgment",             tagline: "Seraph sees the truth.",                    color: "rgba(232,216,130,0.06)" },
-  { num: "VII",  arc: 2, title: "The Undertow",                  tagline: "Hessa opens the door.",                     color: "rgba(201,168,76,0.05)" },
-  { num: "VIII", arc: 2, title: "The Arch-Resonant Moves",       tagline: "Vael steps into the open.",                 color: "rgba(201,168,76,0.07)" },
-  { num: "IX",   arc: 2, title: "What Nullpoint Built",          tagline: "Sola's secret comes out.",                  color: "rgba(201,168,76,0.06)" },
-  { num: "X",    arc: 2, title: "The War of Glows",              tagline: "Light against absence.",                    color: "rgba(232,216,130,0.07)" },
-  { num: "XI",   arc: 2, title: "Seraph's Construct",            tagline: "The wings open fully.",                     color: "rgba(201,168,76,0.08)" },
-  // Arc III
-  { num: "XII",  arc: 3, title: "The Wall",                      tagline: "Hundreds of names. One of them is his.",    color: "rgba(201,168,76,0.07)" },
-  { num: "XIII", arc: 3, title: "Fen's Candle",                  tagline: "The smallest soul.",                        color: "rgba(201,168,76,0.05)" },
-  { num: "XIV",  arc: 3, title: "Mira Becomes Real",             tagline: "The ghost finds solid ground.",             color: "rgba(201,168,76,0.08)" },
-  { num: "XV",   arc: 3, title: "The Void King's Choice",        tagline: "A title — or a declaration.",               color: "rgba(201,168,76,0.09)" },
+type Arc = "I" | "II" | "III";
+
+interface Chapter {
+  numeral: string;
+  title: string;
+  tagline: string;
+  arc: Arc;
+}
+
+const chapters: Chapter[] = [
+  { numeral: "I",    title: "The Boy With No Light",       tagline: "Born unseen, he learns the weight of absence.",          arc: "I"   },
+  { numeral: "II",   title: "The Ghost in the Graveyard",  tagline: "A figure lingers where the dead refuse to rest.",         arc: "I"   },
+  { numeral: "III",  title: "Half a Soul",                 tagline: "Two halves search for what was severed.",                 arc: "I"   },
+  { numeral: "IV",   title: "Running Without a Shadow",    tagline: "To flee the light is to flee oneself.",                   arc: "I"   },
+  { numeral: "V",    title: "The Graveyard's Edge",        tagline: "Where the stones end, the silence begins to speak.",      arc: "I"   },
+  { numeral: "VI",   title: "Wings of Judgment",           tagline: "The sky descends with verdicts forged in gold.",          arc: "II"  },
+  { numeral: "VII",  title: "The Undertow",                tagline: "A current beneath the world pulls him down.",             arc: "II"  },
+  { numeral: "VIII", title: "The Arch-Resonant Moves",     tagline: "Something ancient stirs in harmonic depths.",             arc: "II"  },
+  { numeral: "IX",   title: "What Nullpoint Built",        tagline: "Architecture of erasure, raised in his name.",            arc: "II"  },
+  { numeral: "X",    title: "The War of Glows",            tagline: "Light against light, and the dark watches.",              arc: "II"  },
+  { numeral: "XI",   title: "Seraph's Construct",          tagline: "A machine of mercy with merciless edges.",                arc: "II"  },
+  { numeral: "XII",  title: "The Wall",                    tagline: "Stone older than memory refuses to yield.",               arc: "III" },
+  { numeral: "XIII", title: "Fen's Candle",                tagline: "One small flame held against the void.",                  arc: "III" },
+  { numeral: "XIV",  title: "Mira Becomes Real",           tagline: "What was imagined draws its first breath.",               arc: "III" },
+  { numeral: "XV",   title: "The Void King's Choice",      tagline: "To reign in silence, or to break the throne.",            arc: "III" },
 ];
 
-const arcColors: Record<number, string> = {
-  1: "rgba(201,168,76,0.6)",
-  2: "rgba(232,216,130,0.7)",
-  3: "rgba(201,168,76,0.5)",
+const arcMeta: Record<Arc, { label: string; subtitle: string; color: string }> = {
+  I:   { label: "Arc I",   subtitle: "The Graveyard Boy",    color: "#8a7235" },
+  II:  { label: "Arc II",  subtitle: "The Resonance War",    color: "#C9A84C" },
+  III: { label: "Arc III", subtitle: "The Name on the Wall", color: "#d4823a" },
 };
-const arcLabels: Record<number, string> = {
-  1: "ARC I · THE GRAVEYARD BOY",
-  2: "ARC II · THE RESONANCE WAR",
-  3: "ARC III · THE NAME ON THE WALL",
+
+const arcStyles: Record<Arc, { cardBorder: string; badgeBorder: string; badgeText: string }> = {
+  I:   { cardBorder: "rgba(138,114,53,0.35)", badgeBorder: "#8a7235",  badgeText: "#a08840"  },
+  II:  { cardBorder: "rgba(201,168,76,0.5)",  badgeBorder: "#C9A84C",  badgeText: "#C9A84C"  },
+  III: { cardBorder: "rgba(212,130,58,0.4)",  badgeBorder: "#d4823a",  badgeText: "#d4823a"  },
 };
+
+function ChapterCard({ numeral, title, tagline, arc }: Chapter) {
+  const s = arcStyles[arc];
+  return (
+    <article
+      className="chapter-card"
+      style={{ width: 200, height: 280, border: `1px solid ${s.cardBorder}` }}
+    >
+      <span className="roman-numeral" aria-hidden="true">{numeral}</span>
+
+      <div style={{ position: "relative", zIndex: 10, padding: "20px 20px 0" }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center",
+          paddingLeft: 8, paddingRight: 10, paddingTop: 4, paddingBottom: 4,
+          fontSize: 10, fontWeight: 500, letterSpacing: "0.2em", textTransform: "uppercase",
+          borderLeft: `2px solid ${s.badgeBorder}`, color: s.badgeText,
+        }}>
+          Arc {arc}
+        </div>
+      </div>
+
+      <div style={{ position: "relative", zIndex: 10, padding: "0 20px 20px", marginTop: "auto" }}>
+        <div style={{
+          fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase",
+          color: "#C9A84C", opacity: 0.7, marginBottom: 10, fontWeight: 300,
+          marginTop: 60,
+        }}>
+          Chapter {numeral}
+        </div>
+        <h3 className="font-cormorant" style={{
+          fontSize: 18, lineHeight: 1.2, fontWeight: 600,
+          color: "#f0ead8", marginBottom: 8,
+        }}>
+          {title}
+        </h3>
+        <p className="font-cormorant" style={{
+          fontSize: 11, lineHeight: 1.5, fontWeight: 400,
+          color: "rgba(240,234,216,0.4)", fontStyle: "italic",
+        }}>
+          {tagline}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+function ArcRow({ arc }: { arc: Arc }) {
+  const meta = arcMeta[arc];
+  return (
+    <section style={{ marginBottom: 56 }}>
+      <header style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.4em", textTransform: "uppercase", fontWeight: 500, color: meta.color }}>
+          {meta.label}
+        </div>
+        <div className="font-cormorant" style={{ fontSize: 14, fontStyle: "italic", color: "rgba(240,234,216,0.45)" }}>
+          {meta.subtitle}
+        </div>
+        <div className="arc-divider" style={{ flex: 1 }} />
+      </header>
+      <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
+        {chapters.filter(c => c.arc === arc).map(ch => (
+          <ChapterCard key={ch.numeral} {...ch} />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export default function Chapters() {
   return (
-    <section style={{ padding: "120px 0", position: "relative" }}>
+    <section style={{ padding: "120px 0" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 64px" }}>
         <div style={{ textAlign: "center", marginBottom: 72 }}>
           <span className="section-label" style={{ display: "block", marginBottom: 16 }}>THE CHAPTERS</span>
-          <h2 style={{ fontSize: 52, fontWeight: 800, color: "var(--gold)", letterSpacing: "2px", marginBottom: 20 }}>
+          <h2 style={{ fontSize: 52, fontWeight: 800, color: "var(--gold)", letterSpacing: "2px", marginBottom: 8 }}>
             15 CHAPTERS
           </h2>
-          <div className="divider" style={{ maxWidth: 200, margin: "0 auto 20px" }} />
-          <p style={{ fontSize: 16, color: "var(--dim)", maxWidth: 480, margin: "0 auto", lineHeight: 1.7 }}>
-            Every chapter is a step deeper into Soulmarch — and further from everything Kairu thought he knew.
+          <p className="font-cormorant" style={{
+            fontSize: 18, fontStyle: "italic",
+            color: "rgba(240,234,216,0.5)", marginBottom: 20,
+          }}>
+            Fifteen chapters carved from silence and gold.
           </p>
+          <div className="divider" style={{ maxWidth: 200, margin: "0 auto" }} />
         </div>
 
-        {/* Chapters by arc */}
-        {[1, 2, 3].map((arc) => (
-          <div key={arc} style={{ marginBottom: 48 }}>
-            {/* Arc label */}
-            <div style={{
-              display: "flex", alignItems: "center", gap: 16, marginBottom: 20,
-            }}>
-              <div style={{ width: 3, height: 24, background: arcColors[arc], borderRadius: 2 }} />
-              <span style={{ fontSize: 11, letterSpacing: "3px", color: arcColors[arc] }}>
-                {arcLabels[arc]}
-              </span>
-              <div style={{ flex: 1, height: 1, background: `rgba(201,168,76,0.1)` }} />
-            </div>
+        <ArcRow arc="I" />
+        <ArcRow arc="II" />
+        <ArcRow arc="III" />
 
-            {/* Chapter cards */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(5, 1fr)",
-              gap: 12,
-            }}>
-              {chapters.filter(c => c.arc === arc).map((ch) => (
-                <div
-                  key={ch.num}
-                  className="card-hover gold-border"
-                  style={{
-                    background: "var(--card)",
-                    borderRadius: 3,
-                    padding: "20px 18px",
-                    position: "relative",
-                    overflow: "hidden",
-                    cursor: "default",
-                  }}
-                >
-                  {/* Background */}
-                  <div style={{
-                    position: "absolute", inset: 0,
-                    background: ch.color,
-                    pointerEvents: "none",
-                  }} />
-
-                  {/* Chapter number */}
-                  <div style={{
-                    fontSize: 28, fontWeight: 800,
-                    color: arcColors[arc], opacity: 0.25,
-                    lineHeight: 1, marginBottom: 12,
-                    letterSpacing: "-1px",
-                    position: "relative",
-                  }}>
-                    {ch.num}
-                  </div>
-
-                  {/* Title */}
-                  <h4 style={{
-                    fontSize: 13, fontWeight: 700,
-                    color: "var(--white)", lineHeight: 1.4,
-                    marginBottom: 8, position: "relative",
-                    letterSpacing: "0.3px",
-                  }}>
-                    {ch.title}
-                  </h4>
-
-                  {/* Tagline */}
-                  <p style={{
-                    fontSize: 11, color: "var(--dim)",
-                    lineHeight: 1.5, position: "relative",
-                    fontStyle: "italic",
-                  }}>
-                    {ch.tagline}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+        <footer style={{ textAlign: "center", marginTop: 16 }}>
+          <span style={{ fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", color: "rgba(240,234,216,0.2)" }}>
+            — End of Saga —
+          </span>
+        </footer>
       </div>
     </section>
   );

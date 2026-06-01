@@ -1,96 +1,73 @@
-export default function Logo({ size = 120 }: { size?: number }) {
-  const cx = size / 2;
-  const cy = size / 2;
-  const outerR = size * 0.42;
-  const midR = size * 0.30;
-  const innerR = size * 0.16;
-  const voidR = size * 0.09;
-  const spikeCount = 8;
+type Props = {
+  size?: number;
+  className?: string;
+  stroke?: string;
+  voidColor?: string;
+};
 
-  // Crown spikes
-  const spikes = Array.from({ length: spikeCount }, (_, i) => {
-    const angle = (i / spikeCount) * Math.PI * 2 - Math.PI / 2;
-    const isMain = i % 2 === 0;
-    const r1 = outerR + size * 0.02;
-    const r2 = outerR + size * (isMain ? 0.14 : 0.07);
+export default function Logo({
+  size = 32,
+  className = "",
+  stroke = "#C9A84C",
+  voidColor = "#080603",
+}: Props) {
+  const cx = 100, cy = 100;
+  const outerR = 56, midR = 48, innerR = 40, voidR = 14;
+
+  const spikes = Array.from({ length: 8 }, (_, i) => {
+    const angle = ((-90 + i * 45) * Math.PI) / 180;
+    const isTall = i % 2 === 0;
+    const spikeLen = isTall ? 28 : 14;
     return {
-      x1: cx + Math.cos(angle) * r1,
-      y1: cy + Math.sin(angle) * r1,
-      x2: cx + Math.cos(angle) * r2,
-      y2: cy + Math.sin(angle) * r2,
-      isMain,
+      x1: cx + Math.cos(angle) * outerR,
+      y1: cy + Math.sin(angle) * outerR,
+      x2: cx + Math.cos(angle) * (outerR + spikeLen),
+      y2: cy + Math.sin(angle) * (outerR + spikeLen),
+      isTall,
+      key: i,
     };
   });
 
   return (
     <svg
+      viewBox="0 0 200 200"
       width={size}
       height={size}
-      viewBox={`0 0 ${size} ${size}`}
+      className={className}
+      role="img"
+      aria-label="Void King sigil"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <radialGradient id="logo-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#C9A84C" stopOpacity="0.18" />
-          <stop offset="100%" stopColor="#C9A84C" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="void-core" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#030201" stopOpacity="1" />
-          <stop offset="100%" stopColor="#0a0805" stopOpacity="1" />
-        </radialGradient>
-      </defs>
-
-      {/* Outer atmospheric glow */}
-      <circle cx={cx} cy={cy} r={outerR * 1.6} fill="url(#logo-glow)" />
-
       {/* Crown spikes */}
-      {spikes.map((s, i) => (
-        <line
-          key={i}
-          x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
-          stroke="#C9A84C"
-          strokeWidth={s.isMain ? 1.8 : 1}
-          strokeOpacity={s.isMain ? 0.85 : 0.4}
-          strokeLinecap="round"
-        />
-      ))}
+      <g stroke={stroke} strokeLinecap="square">
+        {spikes.map((s) => (
+          <line key={s.key} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
+            strokeWidth={s.isTall ? 2.25 : 1.75} />
+        ))}
+      </g>
 
-      {/* Outer ring */}
-      <circle cx={cx} cy={cy} r={outerR} stroke="#C9A84C" strokeWidth={1.5} strokeOpacity={0.75} />
+      {/* Tick marks between spikes */}
+      <g stroke={stroke} strokeOpacity={0.35} strokeLinecap="square">
+        {Array.from({ length: 8 }).map((_, i) => {
+          const angle = ((-90 + 22.5 + i * 45) * Math.PI) / 180;
+          return (
+            <line key={`t${i}`}
+              x1={cx + Math.cos(angle) * outerR} y1={cy + Math.sin(angle) * outerR}
+              x2={cx + Math.cos(angle) * (outerR + 5)} y2={cy + Math.sin(angle) * (outerR + 5)}
+              strokeWidth={1} />
+          );
+        })}
+      </g>
 
-      {/* Middle ring */}
-      <circle cx={cx} cy={cy} r={midR} stroke="#C9A84C" strokeWidth={1} strokeOpacity={0.3} />
-
-      {/* Inner ring */}
-      <circle cx={cx} cy={cy} r={innerR} stroke="#C9A84C" strokeWidth={0.8} strokeOpacity={0.2} />
-
-      {/* Void fill */}
-      <circle cx={cx} cy={cy} r={outerR * 0.97} fill="#080603" />
-
-      {/* Re-draw rings on top of fill */}
-      <circle cx={cx} cy={cy} r={outerR} stroke="#C9A84C" strokeWidth={1.5} strokeOpacity={0.75} />
-      <circle cx={cx} cy={cy} r={midR} stroke="#C9A84C" strokeWidth={1} strokeOpacity={0.3} />
-      <circle cx={cx} cy={cy} r={innerR} stroke="#C9A84C" strokeWidth={0.8} strokeOpacity={0.2} />
+      {/* Rings */}
+      <circle cx={cx} cy={cy} r={outerR} stroke={stroke} strokeWidth={2.25} />
+      <circle cx={cx} cy={cy} r={midR} stroke={stroke} strokeOpacity={0.45} strokeWidth={1} />
+      <circle cx={cx} cy={cy} r={innerR} stroke={stroke} strokeOpacity={0.25} strokeWidth={1} />
+      <circle cx={cx} cy={cy} r={voidR + 8} stroke={stroke} strokeOpacity={0.6} strokeWidth={1} />
 
       {/* Void core */}
-      <circle cx={cx} cy={cy} r={voidR} fill="url(#void-core)" />
-      <circle cx={cx} cy={cy} r={voidR} stroke="#C9A84C" strokeWidth={0.8} strokeOpacity={0.15} />
-
-      {/* Four cardinal tick marks */}
-      {[0, 1, 2, 3].map((i) => {
-        const a = (i / 4) * Math.PI * 2;
-        const r1 = midR + 3;
-        const r2 = innerR - 3;
-        return (
-          <line
-            key={i}
-            x1={cx + Math.cos(a) * r1} y1={cy + Math.sin(a) * r1}
-            x2={cx + Math.cos(a) * r2} y2={cy + Math.sin(a) * r2}
-            stroke="#C9A84C" strokeWidth={0.8} strokeOpacity={0.25}
-          />
-        );
-      })}
+      <circle cx={cx} cy={cy} r={voidR} fill={voidColor} stroke={stroke} strokeWidth={1.25} />
     </svg>
   );
 }
