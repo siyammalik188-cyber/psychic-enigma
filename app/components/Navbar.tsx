@@ -55,6 +55,17 @@ export default function Navbar() {
           </a>
         ))}
         <a
+          href="/read"
+          style={{
+            fontSize: 11, letterSpacing: "2px", color: "var(--gold)",
+            textDecoration: "none", transition: "color 0.2s", fontWeight: 600,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+        >
+          READ
+        </a>
+        <a
           href="/social"
           style={{
             fontSize: 11, letterSpacing: "2px", color: "var(--dim)",

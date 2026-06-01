@@ -87,7 +87,7 @@ export default function Hero() {
           </p>
 
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            <a href="#story" className="btn-primary">READ THE STORY</a>
+            <a href="/read" className="btn-primary">READ THE STORY</a>
             <a href="#characters" className="btn-outline">MEET THE CAST</a>
           </div>
 
