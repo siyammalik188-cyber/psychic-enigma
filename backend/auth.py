@@ -171,10 +171,17 @@ async def register(payload: RegisterRequest, response: Response):
     return public_user(doc)
 
 
+def client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 @router.post("/login")
 async def login(payload: LoginRequest, request: Request, response: Response):
     email = payload.email.lower().strip()
-    identifier = f"{request.client.host if request.client else 'unknown'}:{email}"
+    identifier = f"{client_ip(request)}:{email}"
     await check_lockout(identifier)
 
     user = await db.users.find_one({"email": email})

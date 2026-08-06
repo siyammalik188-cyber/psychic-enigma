@@ -120,6 +120,7 @@ async def create_analysis(
 
     analysis = Analysis(
         analysis_id=analysis_id,
+        user_id=str(user["_id"]),
         filename=file.filename or f"report.{ext}",
         content_type=mime_type,
         storage_path=storage_path,

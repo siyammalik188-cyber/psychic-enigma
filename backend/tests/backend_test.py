@@ -277,6 +277,58 @@ class TestAnalysisRegressions:
         assert r.status_code == 400
 
 
+# === Fresh upload owner visibility (retest of FIX 1: user_id on create) ===
+class TestUploadOwnerVisibility:
+    def test_fresh_upload_visible_immediately_and_completes(self):
+        email = _fresh_email("owner")
+        s = _session_for(email, "password123", register=True)
+        with open(SAMPLE_PDF, "rb") as f:
+            r = s.post(
+                f"{API}/analyses",
+                files={"file": ("sample_lab_report.pdf", f, "application/pdf")},
+                data={"patient_context": "TEST_owner"},
+                timeout=60,
+            )
+        assert r.status_code == 200, r.text
+        aid = r.json()["analysis_id"]
+
+        # Immediate GET must return 200 with status processing (not 404 — the fix)
+        gr = s.get(f"{API}/analyses/{aid}", timeout=15)
+        assert gr.status_code == 200, f"immediate GET returned {gr.status_code}, expected 200"
+        assert gr.json().get("status") == "processing"
+
+        # Appears in list
+        lst = s.get(f"{API}/analyses", timeout=15).json().get("items", [])
+        assert aid in [i["analysis_id"] for i in lst]
+
+        # Messages endpoint accessible immediately
+        rm = s.get(f"{API}/analyses/{aid}/messages", timeout=15)
+        assert rm.status_code == 200
+        # File endpoint accessible immediately
+        rf = s.get(f"{API}/analyses/{aid}/file", timeout=30)
+        assert rf.status_code == 200
+
+        # Poll to completion
+        start = time.time()
+        status = "processing"
+        while time.time() - start < POLL_TIMEOUT:
+            gr = s.get(f"{API}/analyses/{aid}", timeout=15)
+            status = gr.json().get("status")
+            if status in ("complete", "failed"):
+                break
+            time.sleep(POLL_INTERVAL)
+        assert status == "complete", f"final status {status}"
+
+        # Now PDF works
+        pr = s.get(f"{API}/analyses/{aid}/summary.pdf", timeout=60)
+        assert pr.status_code == 200
+        assert pr.content.startswith(b"%PDF")
+
+        # Second user cannot access
+        other = _session_for(_fresh_email("other"), "password123", register=True)
+        assert other.get(f"{API}/analyses/{aid}", timeout=15).status_code == 404
+
+
 # === PDF export ===
 class TestPdfExport:
     def test_pdf_export_completed_report(self, demo_client, demo_completed_analysis_id):

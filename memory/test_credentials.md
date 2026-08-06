@@ -1,16 +1,29 @@
 # Test credentials — ClarifyMed
 
-Custom email/password JWT auth (httpOnly cookies) is now implemented.
+Auth: custom email/password JWT with httpOnly cookies (`access_token` 15 min, `refresh_token` 7 days).
+See `/app/auth_testing.md` for the full auth testing playbook.
 
-## Demo (seeded) account
-- **email**: `demo@clarifymed.app`
-- **password**: `Clarify123!`
-- Seeded on backend startup from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `/app/backend/.env`.
-- Owns 5 pre-existing completed analyses.
+## Seeded demo account (from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `/app/backend/.env`)
+| Email | Password | Role |
+|---|---|---|
+| `demo@clarifymed.app` | `Clarify123!` | admin (used as the demo patient; owns the existing sample analyses) |
 
-## Notes
-- Password min length: 8 chars. Duplicate email register → 400. Wrong password → 401.
-- 5 failed logins per ip+email → 429 lockout for 15 min. Use throwaway emails for lockout tests.
-- Base URL: value of `REACT_APP_BACKEND_URL` in `/app/frontend/.env`.
-- Upload fixture: `/app/tests/sample_lab_report.pdf`.
-- `EMERGENT_LLM_KEY` in `/app/backend/.env` powers the analysis + follow-up chat.
+The login page has a **"Fill in the demo account"** button (`data-testid="use-demo-account-button"`)
+that pre-fills these credentials.
+
+## Creating a test patient
+Register any new email via `/login` → "Create an account", or:
+```
+curl -c /tmp/c.txt -X POST $BASE/api/auth/register -H "Content-Type: application/json" \
+  -d '{"email":"patient1@example.com","password":"Secret123!","name":"Test"}'
+```
+Password must be at least 8 characters. New accounts start with an empty history.
+
+## Auth endpoints
+`POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`,
+`POST /api/auth/refresh`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`
+
+## Other
+- `EMERGENT_LLM_KEY` in `/app/backend/.env` (Emergent Universal Key) powers analysis, chat and object storage. No user keys needed.
+- Upload fixture for tests: `/app/tests/sample_lab_report.pdf`
+- All `/api/analyses*` routes require a valid cookie/bearer token and are scoped to the signed-in user.
