@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 export function LogoMark({ size = 34 }) {
   return (
@@ -54,13 +54,26 @@ export default function Layout({ children }) {
             </span>
           </Link>
 
-          <span
-            data-testid="header-disclaimer-pill"
-            className="hidden sm:inline-flex items-center gap-2 rounded-full border border-line bg-muted/70 px-4 py-2 text-[10px] uppercase tracking-[0.2em] font-semibold text-ink2"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-clay" />
-            Not medical advice
-          </span>
+          <div className="flex items-center gap-3 sm:gap-6">
+            <NavLink
+              to="/history"
+              data-testid="nav-history-link"
+              className={({ isActive }) =>
+                `text-sm font-medium transition-colors ${
+                  isActive ? "text-sage" : "text-ink2 hover:text-ink"
+                }`
+              }
+            >
+              My history
+            </NavLink>
+            <span
+              data-testid="header-disclaimer-pill"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-line bg-muted/70 px-4 py-2 text-[10px] uppercase tracking-[0.2em] font-semibold text-ink2"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-clay" />
+              Not medical advice
+            </span>
+          </div>
         </div>
       </header>
       <main>{children}</main>

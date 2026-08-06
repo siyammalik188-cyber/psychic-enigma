@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowUpRight, ClockCounterClockwise } from "@phosphor-icons/react";
 import Uploader from "../components/Uploader";
@@ -53,15 +53,29 @@ export default function Home() {
           transition={{ duration: 0.55, delay: 0.22 }}
           className="lg:col-span-4 flex flex-col gap-6 lg:border-l lg:border-line lg:pl-12"
         >
-          <div className="flex items-center gap-2.5">
-            <ClockCounterClockwise size={20} className="text-sage" />
-            <h2 className="font-display text-2xl tracking-tight text-ink">Recent reports</h2>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <ClockCounterClockwise size={20} className="text-sage" />
+              <h2 className="font-display text-2xl tracking-tight text-ink">Recent reports</h2>
+            </div>
+            {history.length > 0 && (
+              <Link
+                to="/history"
+                data-testid="view-all-history-link"
+                className="text-sm font-medium text-sage hover:text-sageDark transition-colors"
+              >
+                View all
+              </Link>
+            )}
           </div>
 
           {history.length === 0 ? (
             <p data-testid="history-empty" className="text-sm text-ink2 leading-relaxed">
-              Nothing here yet. Your analysed reports will be listed here so you can reopen them
-              any time.
+              Nothing here yet. Your analysed reports will be listed here, and in{" "}
+              <Link to="/history" className="text-sage underline decoration-sage/40">
+                My history
+              </Link>
+              , so you can reopen them any time.
             </p>
           ) : (
             <ul data-testid="history-list" className="flex flex-col gap-3">

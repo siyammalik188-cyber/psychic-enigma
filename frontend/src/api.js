@@ -15,7 +15,8 @@ export const uploadReport = (file, patientContext, onProgress) => {
 };
 
 export const fetchAnalysis = (id) => axios.get(`${API}/analyses/${id}`);
-export const fetchAnalyses = () => axios.get(`${API}/analyses`);
+export const fetchAnalyses = (limit = 12) =>
+  axios.get(`${API}/analyses`, { params: { limit } });
 export const fetchMessages = (id) => axios.get(`${API}/analyses/${id}/messages`);
 
 export const streamChat = async (id, message, onDelta) => {

@@ -127,23 +127,46 @@ async def create_analysis(
     return {"analysis_id": analysis_id, "status": "processing"}
 
 
+STATUS_RANK = {"abnormal": 0, "borderline": 1, "unknown": 2, "normal": 3}
+IMPORTANCE_RANK = {"high": 0, "medium": 1, "low": 2}
+
+
+def top_finding(report: Optional[Report]) -> Optional[dict]:
+    if not report or not report.key_findings:
+        return None
+    best = sorted(
+        report.key_findings,
+        key=lambda f: (STATUS_RANK.get(f.status, 2), IMPORTANCE_RANK.get(f.importance, 1)),
+    )[0]
+    return {
+        "title": best.title,
+        "status": best.status,
+        "explanation": best.explanation,
+    }
+
+
 @api.get("/analyses")
 async def list_analyses(limit: int = 12):
     docs = await db.analyses.find(
         {"is_deleted": False},
         {"document_text": 0},
-    ).sort("created_at", -1).to_list(min(limit, 50))
+    ).sort("created_at", -1).to_list(max(1, min(limit, 200)))
     items = []
     for doc in docs:
         model = Analysis.from_mongo(doc)
+        report = model.report
+        labs = report.lab_values if report else []
         items.append({
             "analysis_id": model.analysis_id,
             "filename": model.filename,
             "status": model.status,
             "created_at": model.created_at,
-            "document_type": model.report.document_type if model.report else "",
-            "overall_status": model.report.overall_status if model.report else "",
-            "headline": model.report.headline if model.report else "",
+            "document_type": report.document_type if report else "",
+            "overall_status": report.overall_status if report else "",
+            "headline": report.headline if report else "",
+            "top_finding": top_finding(report),
+            "lab_count": len(labs),
+            "flagged_count": sum(1 for v in labs if v.status in ("abnormal", "borderline")),
         })
     return {"items": items}
 

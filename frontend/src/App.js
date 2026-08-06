@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
+import History from "./pages/History";
 import Results from "./pages/Results";
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/history" element={<History />} />
           <Route path="/report/:id" element={<Results />} />
         </Routes>
       </Layout>
