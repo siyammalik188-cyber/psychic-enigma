@@ -309,6 +309,7 @@ FRONTEND_URL = os.environ.get("FRONTEND_URL") or "http://localhost:3000"
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_URL, "http://localhost:3000"],
+    allow_origin_regex=r"https://.*\.preview\.emergentagent\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
