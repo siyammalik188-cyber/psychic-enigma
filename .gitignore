@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .netlify/
+.env
+.env.*
+*.env
+credentials.json
+*.key
+.credentials

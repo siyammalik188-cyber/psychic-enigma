@@ -227,6 +227,8 @@ async def download_file(analysis_id: str, user: dict = CurrentUser):
     doc = await owned_analysis(analysis_id, user)
     if not doc.get("storage_path"):
         raise HTTPException(status_code=404, detail="File not found")
+    content: bytes = b""
+    content_type: str = "application/octet-stream"
     try:
         content, content_type = get_object(doc["storage_path"])
     except Exception:
@@ -245,6 +247,50 @@ async def list_messages(analysis_id: str, user: dict = CurrentUser):
     ]}
 
 
+HISTORY_TURNS = 10
+SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"}
+
+
+def sse(payload: dict) -> str:
+    return f"data: {json.dumps(payload)}\n\n"
+
+
+async def save_message(analysis_id: str, role: str, content: str) -> None:
+    await db.messages.insert_one(
+        ChatMessage(
+            analysis_id=analysis_id, role=role, content=content, created_at=now_iso()
+        ).to_mongo()
+    )
+
+
+async def recent_transcript(analysis_id: str) -> str:
+    """The last few turns, excluding the question that was just stored."""
+    history = await db.messages.find({"analysis_id": analysis_id}).sort("created_at", 1).to_list(60)
+    return "\n".join(
+        f"{'Patient' if m['role'] == 'user' else 'Assistant'}: {m['content']}"
+        for m in history[:-1][-HISTORY_TURNS:]
+    )
+
+
+async def stream_answer(llm, prompt: str, analysis_id: str):
+    collected: list[str] = []
+    try:
+        async for event in llm.stream_message(UserMessage(text=prompt)):
+            if isinstance(event, TextDelta):
+                collected.append(event.content)
+                yield sse({"type": "delta", "content": event.content})
+            elif isinstance(event, StreamDone):
+                break
+    except Exception as exc:
+        logger.exception("Chat stream failed for %s", analysis_id)
+        yield sse({"type": "error", "content": str(exc)[:200]})
+
+    answer = "".join(collected).strip()
+    if answer:
+        await save_message(analysis_id, "assistant", answer)
+    yield sse({"type": "done"})
+
+
 @api.post("/analyses/{analysis_id}/chat")
 async def chat(analysis_id: str, payload: ChatRequest, user: dict = CurrentUser):
     doc = await owned_analysis(analysis_id, user)
@@ -253,15 +299,8 @@ async def chat(analysis_id: str, payload: ChatRequest, user: dict = CurrentUser)
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
     model = Analysis.from_mongo(doc)
-    await db.messages.insert_one(
-        ChatMessage(analysis_id=analysis_id, role="user", content=question, created_at=now_iso()).to_mongo()
-    )
-
-    history = await db.messages.find({"analysis_id": analysis_id}).sort("created_at", 1).to_list(60)
-    transcript = "\n".join(
-        f"{'Patient' if m['role'] == 'user' else 'Assistant'}: {m['content']}"
-        for m in history[:-1][-10:]
-    )
+    await save_message(analysis_id, "user", question)
+    transcript = await recent_transcript(analysis_id)
 
     llm = build_followup_chat(
         session_id=f"chat-{analysis_id}-{uuid.uuid4().hex[:8]}",
@@ -273,31 +312,10 @@ async def chat(analysis_id: str, payload: ChatRequest, user: dict = CurrentUser)
         + f"Patient's question: {question}"
     )
 
-    async def event_stream():
-        collected: list[str] = []
-        try:
-            async for event in llm.stream_message(UserMessage(text=prompt)):
-                if isinstance(event, TextDelta):
-                    collected.append(event.content)
-                    yield f"data: {json.dumps({'type': 'delta', 'content': event.content})}\n\n"
-                elif isinstance(event, StreamDone):
-                    break
-        except Exception as exc:
-            logger.exception("Chat stream failed for %s", analysis_id)
-            yield f"data: {json.dumps({'type': 'error', 'content': str(exc)[:200]})}\n\n"
-        answer = "".join(collected).strip()
-        if answer:
-            await db.messages.insert_one(
-                ChatMessage(
-                    analysis_id=analysis_id, role="assistant", content=answer, created_at=now_iso()
-                ).to_mongo()
-            )
-        yield f"data: {json.dumps({'type': 'done'})}\n\n"
-
     return StreamingResponse(
-        event_stream(),
+        stream_answer(llm, prompt, analysis_id),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+        headers=SSE_HEADERS,
     )
 
 

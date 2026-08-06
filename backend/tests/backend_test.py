@@ -12,14 +12,17 @@ from dotenv import dotenv_values
 from pypdf import PdfReader
 
 frontend_env = dotenv_values("/app/frontend/.env")
+backend_env = dotenv_values("/app/backend/.env")
 BASE_URL = (os.environ.get("REACT_APP_BACKEND_URL") or frontend_env.get("REACT_APP_BACKEND_URL", "")).rstrip("/")
 assert BASE_URL, "REACT_APP_BACKEND_URL missing"
 
 API = f"{BASE_URL}/api"
 SAMPLE_PDF = "/app/tests/sample_lab_report.pdf"
 
-DEMO_EMAIL = "demo@clarifymed.app"
-DEMO_PASSWORD = "Clarify123!"
+# Credentials come from the environment / backend .env — never hardcoded here.
+DEMO_EMAIL = os.environ.get("ADMIN_EMAIL") or backend_env.get("ADMIN_EMAIL", "")
+DEMO_PASSWORD = os.environ.get("ADMIN_PASSWORD") or backend_env.get("ADMIN_PASSWORD", "")
+assert DEMO_EMAIL and DEMO_PASSWORD, "ADMIN_EMAIL / ADMIN_PASSWORD missing from environment"
 
 POLL_TIMEOUT = 150
 POLL_INTERVAL = 3
@@ -189,7 +192,7 @@ class TestPasswordReset:
     def test_forgot_password_always_200(self):
         r = requests.post(f"{API}/auth/forgot-password", json={"email": "nonexistent@example.com"}, timeout=15)
         assert r.status_code == 200
-        assert r.json().get("sent") is True
+        assert r.json()["sent"]
 
     def test_reset_password_invalid_token_400(self):
         r = requests.post(f"{API}/auth/reset-password", json={"token": "invalid-token-xyz", "password": "newpassword123"}, timeout=15)
