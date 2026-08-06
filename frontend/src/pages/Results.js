@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   FileText,
+  FilePdf,
   Question,
   Warning,
   Compass,
@@ -11,7 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import StatusBadge from "../components/StatusBadge";
 import ChatPanel from "../components/ChatPanel";
-import { fetchAnalysis } from "../api";
+import { downloadSummaryPdf, fetchAnalysis } from "../api";
 
 const fade = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
@@ -45,7 +47,21 @@ export default function Results() {
   const { id } = useParams();
   const [analysis, setAnalysis] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const timer = useRef(null);
+
+  const shareWithDoctor = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      await downloadSummaryPdf(id, `ClarifyMed-summary-${id.slice(0, 8)}.pdf`);
+      toast.success("One-page summary downloaded — ready to share.");
+    } catch (err) {
+      toast.error("Could not build the PDF. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -163,7 +179,21 @@ export default function Results() {
             })}
           </p>
         </div>
-        <StatusBadge status={r.overall_status} testId="overall-status-badge" />
+        <div className="flex flex-col items-start md:items-end gap-4">
+          <StatusBadge status={r.overall_status} testId="overall-status-badge" />
+          <button
+            data-testid="share-with-doctor-button"
+            onClick={shareWithDoctor}
+            disabled={exporting}
+            className="inline-flex items-center gap-2.5 rounded-full bg-ink px-6 py-3 font-medium text-canvas transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-45 disabled:hover:translate-y-0"
+          >
+            <FilePdf size={18} weight="duotone" />
+            {exporting ? "Preparing PDF…" : "Share with my doctor"}
+          </button>
+          <p className="text-xs text-ink3 md:text-right max-w-[210px]">
+            One page: summary, flagged values and your questions.
+          </p>
+        </div>
       </motion.header>
 
       {r.red_flags?.length > 0 && (

@@ -52,6 +52,7 @@ class Report(BaseModel):
 
 class Analysis(BaseDocument):
     analysis_id: str
+    user_id: str = ""
     filename: str
     content_type: str = "application/pdf"
     storage_path: str = ""

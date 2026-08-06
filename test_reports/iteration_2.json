@@ -1,0 +1,53 @@
+{
+  "summary": "Rewrote backend_test.py for the new cookie/JWT auth. 23/26 backend tests pass. Two real backend defects surfaced: (1) POST /api/analyses never sets user_id on the inserted doc, so every newly uploaded analysis is inaccessible to its own uploader (the whole upload flow returns 404 immediately after 200 on create); (2) brute-force lockout never triggers behind the Kubernetes ingress because `request.client.host` rotates between upstream pod IPs, so the ip+email identifier never accumulates 5 failures. All requested frontend flows that do NOT depend on a fresh upload work: auth gate, /login form, demo sign-in, header, /history listing of the 5 pre-seeded demo reports, Share-with-my-doctor PDF download (filename ClarifyMed-summary-*.pdf) with success toast, sign-out, and the register-flow UI isolation (fresh user lands on / with history-empty and /history with history-page-empty). PDF export backend also verified: single page, application/pdf, attachment filename, contains ClarifyMed masthead + headline + summary + numbered questions + NOT MEDICAL ADVICE footer, and returns 401 without auth.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/analyses",
+        "issue": "The Analysis document is inserted WITHOUT user_id (server.py lines 121-131 never pass user_id=str(user['_id']) to the Analysis constructor). Since owned_analysis() filters by user_id, every newly uploaded analysis is immediately unreachable by its uploader (all subsequent GET /api/analyses/{id}, /messages, /summary.pdf, /file, DELETE, and POST /chat return 404). The only reason the demo account 'works' is that its 5 pre-existing analyses were seeded manually with a user_id. This breaks the entire upload workflow end-to-end (frontend regression: upload -> /report/{id} will render an 'analysis not found' state).",
+        "priority": "CRITICAL"
+      },
+      {
+        "endpoint": "POST /api/auth/login",
+        "issue": "Brute-force lockout never triggers in this environment. auth.py builds the identifier as `f\"{request.client.host}:{email}\"`, but behind the Kubernetes ingress the client host rotates between pod IPs (observed 10.208.151.74 and 10.208.151.75 in backend.out.log for a single test client), so no single identifier ever reaches MAX_ATTEMPTS=5. Real attackers hitting through the same ingress will bypass the 429. Fix: derive the client IP from `X-Forwarded-For` (first hop) or key the counter on email alone with a short window.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Upload -> /report/{id}",
+        "issue": "Not directly re-tested because the backend defect above makes the flow return 404. The frontend will show the 'analysis not found' branch for every fresh upload until server.py sets user_id on create.",
+        "affected_selectors": ["/api/analyses (POST)", "/report/:id"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "server.py::create_analysis — pass user_id=str(user['_id']) into the Analysis() constructor (or add it to the dict before insert_one). Without this every new upload is invisible to its owner.",
+    "auth.py::login identifier — use X-Forwarded-For first hop (or email alone) so the 5-fail/15-min lockout actually triggers behind the Kubernetes ingress.",
+    "Optional: mark the seeded demo analyses' ownership explicitly in a small migration/seed step so tests don't rely on manual data setup."
+  ],
+  "critical_code_review_comments": [
+    "server.py L121-131: Analysis(..., created_at=now_iso()) is missing user_id — this is the smoking gun for the 404-after-upload bug.",
+    "auth.py L177: identifier = f\"{request.client.host}:{email}\" is unreliable behind a K8s ingress that load-balances across pods; prefer request.headers.get('x-forwarded-for','').split(',')[0].strip() or key on email alone."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py",
+    "/app/memory/test_credentials.md"
+  ],
+  "success_rate": {"backend": "88% (23/26)", "frontend": "100% of tested flows (upload flow not tested because backend bug prevents it)"},
+  "seed_data_creation": "Registered several throwaway TEST_*@clarifytest.dev users for isolation and lockout tests. Did not delete them (no admin delete endpoint); safe to ignore or purge from db.users where email like 'TEST_%'.",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "demo@clarifymed.app / Clarify123! (seeded, owns 5 pre-existing analyses).",
+  "context_for_next_testing_agent": "backend_test.py now uses cookie sessions (see helpers _session_for/_fresh_email). The 3 failing tests are real defects, not test-code issues. Once the main agent adds `user_id=str(user['_id'])` to the Analysis insert, the following two tests should pass without any test-file edit: TestIsolation::test_user_b_upload_not_visible_to_demo and TestPdfExport::test_pdf_export_processing_returns_409. Once the lockout identifier is fixed, TestAuthRegistration::test_lockout_after_5_failures should pass too. Frontend upload -> report flow was intentionally NOT re-tested via Playwright to avoid a guaranteed failure; add it back after the user_id fix.",
+  "rca_of_the_issue": "user_id 404: models.Analysis defaults user_id='' and server.create_analysis constructs Analysis(...) without supplying user_id. owned_analysis() then filters on {user_id: str(user['_id']), is_deleted: False}. Because '' != actual ObjectId string, the fresh doc is never found. Fix in one line: add user_id=str(user['_id']) alongside filename in the Analysis(...) call. Lockout: FastAPI's request.client.host reflects the last TCP hop; the K8s ingress fronting this preview URL uses multiple upstream IPs (10.208.151.74/.75 observed in logs) so the identifier changes across attempts. Fix by reading X-Forwarded-For or dropping the IP portion."
+}

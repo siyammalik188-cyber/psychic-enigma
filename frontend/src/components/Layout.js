@@ -1,5 +1,7 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { SignOut } from "@phosphor-icons/react";
+import { useAuth } from "../AuthContext";
 
 export function LogoMark({ size = 34 }) {
   return (
@@ -32,6 +34,14 @@ export function LogoMark({ size = 34 }) {
 }
 
 export default function Layout({ children }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const signOut = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-canvas">
       <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-white/40">
@@ -54,25 +64,44 @@ export default function Layout({ children }) {
             </span>
           </Link>
 
-          <div className="flex items-center gap-3 sm:gap-6">
-            <NavLink
-              to="/history"
-              data-testid="nav-history-link"
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors ${
-                  isActive ? "text-sage" : "text-ink2 hover:text-ink"
-                }`
-              }
-            >
-              My history
-            </NavLink>
-            <span
-              data-testid="header-disclaimer-pill"
-              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-line bg-muted/70 px-4 py-2 text-[10px] uppercase tracking-[0.2em] font-semibold text-ink2"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-clay" />
-              Not medical advice
-            </span>
+          <div className="flex items-center gap-3 sm:gap-5">
+            {user ? (
+              <>
+                <NavLink
+                  to="/history"
+                  data-testid="nav-history-link"
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition-colors ${
+                      isActive ? "text-sage" : "text-ink2 hover:text-ink"
+                    }`
+                  }
+                >
+                  My history
+                </NavLink>
+                <span
+                  data-testid="header-user-email"
+                  className="hidden md:inline text-sm text-ink3 max-w-[190px] truncate"
+                >
+                  {user.email}
+                </span>
+                <button
+                  data-testid="sign-out-button"
+                  onClick={signOut}
+                  className="inline-flex items-center gap-2 rounded-full border border-line bg-muted/70 px-4 py-2 text-sm font-medium text-ink2 transition-colors hover:bg-normalBg hover:text-ink"
+                >
+                  <SignOut size={15} />
+                  <span className="hidden sm:inline">Sign out</span>
+                </button>
+              </>
+            ) : (
+              <span
+                data-testid="header-disclaimer-pill"
+                className="hidden sm:inline-flex items-center gap-2 rounded-full border border-line bg-muted/70 px-4 py-2 text-[10px] uppercase tracking-[0.2em] font-semibold text-ink2"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-clay" />
+                Not medical advice
+              </span>
+            )}
           </div>
         </div>
       </header>

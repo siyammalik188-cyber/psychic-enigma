@@ -4,31 +4,26 @@ import os
 import tempfile
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Optional
 
-from dotenv import load_dotenv
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / ".env")
+from database import client, db
 
 from fastapi import APIRouter, BackgroundTasks, FastAPI, File, Form, HTTPException, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from motor.motor_asyncio import AsyncIOMotorClient
 
+import auth
 from ai import analyse_document, build_followup_chat
+from auth import CurrentUser
 from emergentintegrations.llm.chat import StreamDone, TextDelta, UserMessage
 from models import Analysis, ChatMessage, ChatRequest, Report
+from pdf_export import build_summary_pdf
 from storage import APP_NAME, init_storage, put_object, get_object
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("medical-ai")
 
-client = AsyncIOMotorClient(os.environ["MONGO_URL"])
-db = client[os.environ["DB_NAME"]]
-
-app = FastAPI(title="Medical AI Assistant")
+app = FastAPI(title="ClarifyMed API")
 api = APIRouter(prefix="/api")
 
 ALLOWED_TYPES = {
@@ -81,7 +76,18 @@ async def run_analysis(analysis_id: str, data: bytes, ext: str, mime_type: str, 
 
 @api.get("/")
 async def root():
-    return {"service": "Medical AI Assistant", "status": "ok"}
+    return {"service": "ClarifyMed", "status": "ok"}
+
+
+async def owned_analysis(analysis_id: str, user: dict) -> dict:
+    doc = await db.analyses.find_one({
+        "analysis_id": analysis_id,
+        "user_id": str(user["_id"]),
+        "is_deleted": False,
+    })
+    if not doc:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    return doc
 
 
 @api.post("/analyses")
@@ -89,6 +95,7 @@ async def create_analysis(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     patient_context: str = Form(""),
+    user: dict = CurrentUser,
 ):
     mime_type = (file.content_type or "").lower()
     if mime_type not in ALLOWED_TYPES:
@@ -146,9 +153,9 @@ def top_finding(report: Optional[Report]) -> Optional[dict]:
 
 
 @api.get("/analyses")
-async def list_analyses(limit: int = 12):
+async def list_analyses(limit: int = 12, user: dict = CurrentUser):
     docs = await db.analyses.find(
-        {"is_deleted": False},
+        {"user_id": str(user["_id"]), "is_deleted": False},
         {"document_text": 0},
     ).sort("created_at", -1).to_list(max(1, min(limit, 200)))
     items = []
@@ -172,10 +179,8 @@ async def list_analyses(limit: int = 12):
 
 
 @api.get("/analyses/{analysis_id}")
-async def get_analysis(analysis_id: str):
-    doc = await db.analyses.find_one({"analysis_id": analysis_id, "is_deleted": False})
-    if not doc:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+async def get_analysis(analysis_id: str, user: dict = CurrentUser):
+    doc = await owned_analysis(analysis_id, user)
     model = Analysis.from_mongo(doc)
     return {
         "analysis_id": model.analysis_id,
@@ -192,19 +197,34 @@ async def get_analysis(analysis_id: str):
 
 
 @api.delete("/analyses/{analysis_id}")
-async def delete_analysis(analysis_id: str):
+async def delete_analysis(analysis_id: str, user: dict = CurrentUser):
     result = await db.analyses.update_one(
-        {"analysis_id": analysis_id}, {"$set": {"is_deleted": True}}
+        {"analysis_id": analysis_id, "user_id": str(user["_id"])}, {"$set": {"is_deleted": True}}
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Analysis not found")
     return {"deleted": True}
 
 
+@api.get("/analyses/{analysis_id}/summary.pdf")
+async def summary_pdf(analysis_id: str, user: dict = CurrentUser):
+    doc = await owned_analysis(analysis_id, user)
+    model = Analysis.from_mongo(doc)
+    if model.status != "complete" or not model.report:
+        raise HTTPException(status_code=409, detail="This report is not ready yet.")
+    pdf = build_summary_pdf(model)
+    stem = (model.filename.rsplit(".", 1)[0] or "report")[:40].replace('"', "")
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="ClarifyMed-{stem}.pdf"'},
+    )
+
+
 @api.get("/analyses/{analysis_id}/file")
-async def download_file(analysis_id: str):
-    doc = await db.analyses.find_one({"analysis_id": analysis_id, "is_deleted": False})
-    if not doc or not doc.get("storage_path"):
+async def download_file(analysis_id: str, user: dict = CurrentUser):
+    doc = await owned_analysis(analysis_id, user)
+    if not doc.get("storage_path"):
         raise HTTPException(status_code=404, detail="File not found")
     try:
         content, content_type = get_object(doc["storage_path"])
@@ -215,7 +235,8 @@ async def download_file(analysis_id: str):
 
 
 @api.get("/analyses/{analysis_id}/messages")
-async def list_messages(analysis_id: str):
+async def list_messages(analysis_id: str, user: dict = CurrentUser):
+    await owned_analysis(analysis_id, user)
     docs = await db.messages.find({"analysis_id": analysis_id}).sort("created_at", 1).to_list(500)
     return {"items": [
         {"role": d["role"], "content": d["content"], "created_at": d["created_at"]}
@@ -224,10 +245,8 @@ async def list_messages(analysis_id: str):
 
 
 @api.post("/analyses/{analysis_id}/chat")
-async def chat(analysis_id: str, payload: ChatRequest):
-    doc = await db.analyses.find_one({"analysis_id": analysis_id, "is_deleted": False})
-    if not doc:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+async def chat(analysis_id: str, payload: ChatRequest, user: dict = CurrentUser):
+    doc = await owned_analysis(analysis_id, user)
     question = (payload.message or "").strip()
     if not question:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
@@ -282,10 +301,13 @@ async def chat(analysis_id: str, payload: ChatRequest):
 
 
 app.include_router(api)
+app.include_router(auth.router)
+
+FRONTEND_URL = os.environ.get("FRONTEND_URL") or "http://localhost:3000"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=(os.environ.get("CORS_ORIGINS") or "*").split(","),
+    allow_origins=[FRONTEND_URL, "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -300,7 +322,10 @@ async def on_startup():
     except Exception as exc:
         logger.error("Storage init failed: %s", exc)
     await db.analyses.create_index("analysis_id")
+    await db.analyses.create_index([("user_id", 1), ("created_at", -1)])
     await db.messages.create_index("analysis_id")
+    await auth.ensure_indexes()
+    await auth.seed_admin()
 
 
 @app.on_event("shutdown")
