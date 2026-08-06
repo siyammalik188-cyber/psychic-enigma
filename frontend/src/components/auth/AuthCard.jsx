@@ -5,8 +5,8 @@ import { useAuth } from "../../AuthContext";
 import { formatApiErrorDetail } from "../../api";
 
 // Non-sensitive demo config only — supplied by the environment, never hardcoded.
-const DEMO_EMAIL = process.env.REACT_APP_DEMO_EMAIL || "";
-const DEMO_PASSWORD = process.env.REACT_APP_DEMO_PASSWORD || "";
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL || "";
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || "";
 const HAS_DEMO = Boolean(DEMO_EMAIL && DEMO_PASSWORD);
 
 export default function AuthCard() {
