@@ -1,4 +1,4 @@
-"""Backend tests for ClarifyMed Medical AI Assistant (auth + per-user isolation + PDF export)."""
+"""Backend tests for CLERIFYMED Medical AI Assistant (auth + per-user isolation + PDF export)."""
 import io
 import json
 import os
@@ -346,7 +346,7 @@ class TestPdfExport:
         reader = PdfReader(io.BytesIO(r.content))
         assert len(reader.pages) == 1, f"expected 1 page, got {len(reader.pages)}"
         text = reader.pages[0].extract_text() or ""
-        assert "ClarifyMed" in text
+        assert "CLERIFYMED" in text
         assert "NOT MEDICAL ADVICE" in text
         # Headline / summary presence - fetch report to compare
         rep = demo_client.get(f"{API}/analyses/{demo_completed_analysis_id}", timeout=15).json()["report"]

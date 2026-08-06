@@ -1,4 +1,4 @@
-# Test credentials — ClarifyMed
+# Test credentials — CLERIFYMED
 
 Auth: custom email/password JWT with httpOnly cookies (`access_token` 15 min, `refresh_token` 7 days).
 See `/app/auth_testing.md` for the full auth testing playbook.
@@ -6,7 +6,7 @@ See `/app/auth_testing.md` for the full auth testing playbook.
 ## Seeded demo account (from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `/app/backend/.env`)
 | Email | Password | Role |
 |---|---|---|
-| `demo@clarifymed.app` (or your local `ADMIN_EMAIL`) | *(set via `ADMIN_PASSWORD` in your local, gitignored `.env` — never commit the real value)* | admin (used as the demo patient; owns the existing sample analyses) |
+| `demo@clerifymed.app` (or your local `ADMIN_EMAIL`) | *(set via `ADMIN_PASSWORD` in your local, gitignored `.env` — never commit the real value)* | admin (used as the demo patient; owns the existing sample analyses) |
 
 **Note:** an earlier revision of this file committed the real demo password to source control. If that password is still in use anywhere, rotate it — a value that has ever been in git history should be treated as compromised.
 

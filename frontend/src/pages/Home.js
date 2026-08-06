@@ -26,7 +26,7 @@ export default function Home() {
     <div className="max-w-6xl mx-auto px-6 py-12 md:py-20">
       <motion.div {...fade} transition={{ duration: 0.55 }} className="max-w-3xl">
         <p className="text-xs uppercase tracking-[0.2em] font-semibold text-sage">
-          ClarifyMed · Plain-language lab reports
+          CLERIFYMED · Plain-language lab reports
         </p>
         <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl tracking-tighter text-ink leading-[1.02]">
           Your lab report,
@@ -34,7 +34,7 @@ export default function Home() {
           <span className="italic text-sage">explained like a human wrote it.</span>
         </h1>
         <p className="mt-6 text-lg text-ink2 leading-relaxed max-w-xl">
-          Upload a lab report and ClarifyMed reads it back to you in everyday words — what each
+          Upload a lab report and CLERIFYMED reads it back to you in everyday words — what each
           value means, what deserves attention, and exactly what to ask your doctor next.
         </p>
       </motion.div>
@@ -119,7 +119,7 @@ export default function Home() {
             <ol className="mt-4 space-y-3 text-sm text-ink2">
               {[
                 "Upload a PDF or photo of your report.",
-                "ClarifyMed reads the text and every value it can find.",
+                "CLERIFYMED reads the text and every value it can find.",
                 "You get a plain-language summary plus questions for your doctor.",
                 "Ask follow-up questions in the chat on the results page.",
               ].map((step, i) => (

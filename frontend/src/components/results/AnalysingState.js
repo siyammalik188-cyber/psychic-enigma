@@ -11,7 +11,7 @@ export default function AnalysingState({ filename }) {
         Reading your report
       </h2>
       <p className="mt-4 text-ink2 leading-relaxed">
-        ClarifyMed is extracting the text from <span className="text-ink">{filename}</span> and
+        CLERIFYMED is extracting the text from <span className="text-ink">{filename}</span> and
         translating it into plain language. This usually takes 20–40 seconds.
       </p>
       <div className="mt-10 h-1.5 w-full overflow-hidden rounded-full bg-muted">

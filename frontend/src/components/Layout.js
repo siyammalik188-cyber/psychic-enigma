@@ -56,7 +56,7 @@ export default function Layout({ children }) {
             </span>
             <span className="leading-none">
               <span className="block font-display text-[26px] font-semibold tracking-tight text-ink">
-                ClarifyMed
+                CLERIFYMED
               </span>
               <span className="block text-[9.5px] uppercase tracking-[0.28em] font-semibold text-ink2 mt-0.5">
                 Medical AI Assistant
@@ -110,10 +110,10 @@ export default function Layout({ children }) {
         <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-4 justify-between text-sm text-ink2">
           <p className="flex items-center gap-2">
             <LogoMark size={20} />
-            <span className="font-display text-lg text-ink">ClarifyMed</span>
+            <span className="font-display text-lg text-ink">CLERIFYMED</span>
           </p>
           <p className="max-w-md leading-relaxed">
-            ClarifyMed helps you read your own medical documents. It does not diagnose, treat, or
+            CLERIFYMED helps you read your own medical documents. It does not diagnose, treat, or
             replace a conversation with a licensed clinician.
           </p>
         </div>

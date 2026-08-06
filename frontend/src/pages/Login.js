@@ -29,7 +29,7 @@ export default function Login() {
             Not medical advice
           </p>
           <p className="mt-3 text-sm text-ink2 leading-relaxed">
-            ClarifyMed explains medical documents in everyday language. It does not diagnose and it
+            CLERIFYMED explains medical documents in everyday language. It does not diagnose and it
             never replaces your clinician.
           </p>
         </div>

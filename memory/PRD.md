@@ -1,4 +1,4 @@
-# ClarifyMed — Medical AI Assistant
+# CLERIFYMED — Medical AI Assistant
 
 ## Original problem statement
 "Build a web-based Medical AI Assistant. Homepage: a clean 'Upload Lab Report' area for patients
@@ -7,7 +7,7 @@ the platform's Universal Key to extract the text and show a simple-language summ
 and questions for the patient to ask their doctor. Chat: include a support chat on the results page
 where the patient can ask follow-up questions about their report."
 
-Follow-ups: rename the project to **ClarifyMed** (logo + header updated); add a **My History** page.
+Follow-ups: rename the project to **CLERIFYMED** (logo + header updated); add a **My History** page.
 
 ## Architecture
 - **Frontend**: React 18 (CRA) + Tailwind, framer-motion, @phosphor-icons/react, sonner, react-markdown. `/app/frontend`
@@ -49,8 +49,8 @@ All `/api/analyses*` routes require auth and are scoped by `user_id` (other user
 
 ## Implemented
 **2026-06 (session 1)**
-- Full ClarifyMed MVP: uploader, async analysis pipeline, results page, grounded streaming chat, recent reports
-- Renamed brand to ClarifyMed with new SVG logo mark + header (nav + "not medical advice" pill)
+- Full CLERIFYMED MVP: uploader, async analysis pipeline, results page, grounded streaming chat, recent reports
+- Renamed brand to CLERIFYMED with new SVG logo mark + header (nav + "not medical advice" pill)
 - My History page (`/history`) with dates, top finding per report, flagged-value counts, click-through to results
 - Testing agent iteration 1: backend 9/9 pass, frontend end-to-end pass, 0 issues
 - Fixture: `/app/tests/sample_lab_report.pdf` (generator: `make_sample_report.py`)

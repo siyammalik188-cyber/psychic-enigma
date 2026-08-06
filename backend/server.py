@@ -23,7 +23,7 @@ from storage import APP_NAME, init_storage, put_object, get_object
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("medical-ai")
 
-app = FastAPI(title="ClarifyMed API")
+app = FastAPI(title="CLERIFYMED API")
 api = APIRouter(prefix="/api")
 
 ALLOWED_TYPES = {
@@ -76,7 +76,7 @@ async def run_analysis(analysis_id: str, data: bytes, ext: str, mime_type: str, 
 
 @api.get("/")
 async def root():
-    return {"service": "ClarifyMed", "status": "ok"}
+    return {"service": "CLERIFYMED", "status": "ok"}
 
 
 async def owned_analysis(analysis_id: str, user: dict) -> dict:
@@ -218,7 +218,7 @@ async def summary_pdf(analysis_id: str, user: dict = CurrentUser):
     return Response(
         content=pdf,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="ClarifyMed-{stem}.pdf"'},
+        headers={"Content-Disposition": f'attachment; filename="CLERIFYMED-{stem}.pdf"'},
     )
 
 

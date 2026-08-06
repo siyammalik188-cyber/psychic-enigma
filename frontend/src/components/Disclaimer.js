@@ -14,7 +14,7 @@ export default function Disclaimer() {
             This is not medical advice
           </p>
           <p className="mt-4 text-ink2 leading-relaxed max-w-2xl">
-            ClarifyMed is an educational tool that translates medical documents into plain language.
+            CLERIFYMED is an educational tool that translates medical documents into plain language.
             It does not diagnose conditions, prescribe or adjust medication, and it can misread a
             document. Always confirm anything you read here with a licensed clinician, and seek
             urgent care immediately if you feel unwell.

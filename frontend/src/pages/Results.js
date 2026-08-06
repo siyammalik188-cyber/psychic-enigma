@@ -26,7 +26,7 @@ export default function Results() {
     if (exporting) return;
     setExporting(true);
     try {
-      await downloadSummaryPdf(id, `ClarifyMed-summary-${id.slice(0, 8)}.pdf`);
+      await downloadSummaryPdf(id, `CLERIFYMED-summary-${id.slice(0, 8)}.pdf`);
       toast.success("One-page summary downloaded — ready to share.");
     } catch (err) {
       toast.error("Could not build the PDF. Please try again.");
@@ -91,7 +91,7 @@ export default function Results() {
                 Not medical advice
               </p>
               <p className="mt-3 text-sm text-ink2 leading-relaxed">
-                ClarifyMed explains documents; it does not diagnose. Take this summary to your
+                CLERIFYMED explains documents; it does not diagnose. Take this summary to your
                 clinician rather than acting on it alone.
               </p>
             </div>

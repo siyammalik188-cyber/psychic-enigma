@@ -1,4 +1,4 @@
-# ClarifyMed — Auth testing playbook
+# CLERIFYMED — Auth testing playbook
 
 Custom email/password JWT auth (httpOnly cookies) on FastAPI + MongoDB + React.
 
@@ -11,7 +11,7 @@ Custom email/password JWT auth (httpOnly cookies) on FastAPI + MongoDB + React.
 mongosh
 use medical_ai
 db.users.find().pretty()
-db.users.findOne({email: "demo@clarifymed.app"}, {password_hash: 1})
+db.users.findOne({email: "demo@clerifymed.app"}, {password_hash: 1})
 db.users.getIndexes()
 db.login_attempts.getIndexes()
 db.password_reset_tokens.getIndexes()
@@ -23,7 +23,7 @@ Verify: `password_hash` starts with `$2b$`; unique index on `users.email`; index
 ```
 BASE=<your deployment base URL>
 curl -c /tmp/c.txt -X POST $BASE/api/auth/login -H "Content-Type: application/json" \
-  -d '{"email":"demo@clarifymed.app","password":"<ADMIN_PASSWORD from your local .env>"}'
+  -d '{"email":"demo@clerifymed.app","password":"<ADMIN_PASSWORD from your local .env>"}'
 cat /tmp/c.txt          # expect access_token + refresh_token
 curl -b /tmp/c.txt $BASE/api/auth/me
 curl -b /tmp/c.txt $BASE/api/auth/refresh -X POST
