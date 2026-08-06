@@ -1,0 +1,147 @@
+{
+  "theme_and_identity": {
+    "theme_preference": "light_preferred",
+    "emotional_archetype": "Organic & Earthy",
+    "vibe": "Grounded, calming, authoritative yet empathetic. Replaces anxiety of medical results with clarity and reassurance.",
+    "anti_patterns": [
+      "Sterile hospital blue (#0000FF variants)",
+      "Harsh red for alerts (creates panic)",
+      "Clinical/Vercel default aesthetics",
+      "Generic tech-startup vector illustrations"
+    ]
+  },
+  "typography": {
+    "instructions_to_main_agent": "Inject these Google fonts via Next.js or HTML head. Do NOT use Inter for headings.",
+    "primary_heading": {
+      "family": "'Cormorant Garamond', serif",
+      "usage": "H1, H2, large numbers, plain-language summaries",
+      "weights": [400, 500, 600, 700],
+      "styling": "tracking-tight"
+    },
+    "body_font": {
+      "family": "'Manrope', sans-serif",
+      "usage": "Body text, tables, UI elements, labels, buttons",
+      "weights": [400, 500, 600],
+      "styling": "leading-relaxed"
+    },
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight",
+      "h3": "text-xl sm:text-2xl tracking-tight",
+      "body": "text-base",
+      "disclaimer": "text-xs uppercase tracking-[0.2em] font-semibold"
+    }
+  },
+  "colors": {
+    "background": {
+      "app": "#F7F5F0",
+      "surface": "#FFFFFF",
+      "surface_muted": "#F0EDE4"
+    },
+    "text": {
+      "primary": "#1C211F",
+      "secondary": "#5C6661",
+      "disabled": "#A3A8A5"
+    },
+    "brand": {
+      "primary": "#5C715E",
+      "primary_hover": "#4A5A4B",
+      "accent": "#D4A373"
+    },
+    "clinical_status": {
+      "normal": {
+        "bg": "#EEF2ED",
+        "text": "#4A5A4B",
+        "border": "#5C715E"
+      },
+      "borderline": {
+        "bg": "#FDF6EC",
+        "text": "#A8763E",
+        "border": "#D4A373"
+      },
+      "abnormal": {
+        "bg": "#FAF0ED",
+        "text": "#A84C32",
+        "border": "#C06E52"
+      }
+    },
+    "border": {
+      "default": "#E5E2D9",
+      "focus": "#5C715E"
+    }
+  },
+  "layouts_and_grids": {
+    "page_wrapper": "max-w-6xl mx-auto px-6 py-12 md:py-24",
+    "home_page": {
+      "layout": "Grid cols-1 lg:grid-cols-12 gap-12",
+      "uploader_section": "lg:col-span-8 flex flex-col gap-6",
+      "history_section": "lg:col-span-4 flex flex-col gap-6 border-l border-[#E5E2D9] lg:pl-12"
+    },
+    "results_page": {
+      "header_layout": "flex flex-col md:flex-row justify-between items-start md:items-end mb-12 border-b border-[#E5E2D9] pb-8",
+      "bento_grid": "grid grid-cols-1 md:grid-cols-3 gap-6 mb-12",
+      "table_container": "bg-white rounded-3xl p-8 border border-[#E5E2D9] shadow-sm mb-12"
+    }
+  },
+  "component_guidelines": {
+    "uploader_dropzone": {
+      "style": "relative flex flex-col items-center justify-center p-16 border-2 border-dashed border-[#5C715E]/30 rounded-[2rem] bg-white/50 backdrop-blur-sm cursor-pointer transition-all duration-300",
+      "hover_state": "hover:bg-white hover:border-[#5C715E] hover:shadow-lg",
+      "active_state": "bg-[#EEF2ED] border-[#5C715E]",
+      "icon_style": "text-[#5C715E] mb-6 w-12 h-12"
+    },
+    "cards": {
+      "style": "bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 border border-[#E5E2D9] shadow-[0_8px_32px_rgba(28,33,31,0.03)]"
+    },
+    "buttons": {
+      "primary": "bg-[#1C211F] text-[#F7F5F0] rounded-full px-6 py-3 font-medium transition-transform hover:-translate-y-0.5 hover:shadow-md",
+      "secondary": "bg-transparent text-[#1C211F] border border-[#1C211F] rounded-full px-6 py-3 font-medium hover:bg-[#EEF2ED]",
+      "subtle": "bg-[#EEF2ED] text-[#4A5A4B] rounded-full px-4 py-2 text-sm font-medium hover:bg-[#DCE3DB]"
+    },
+    "lab_table": {
+      "style": "w-full text-left border-collapse",
+      "header": "border-b-2 border-[#1C211F] pb-4 font-serif text-lg text-[#1C211F]",
+      "row": "border-b border-[#E5E2D9] transition-colors hover:bg-[#F7F5F0]/50",
+      "cell": "py-4 px-2"
+    },
+    "status_badge": {
+      "style": "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+    }
+  },
+  "motion_and_interactions": {
+    "analyzing_state": "Use Framer Motion to create a gentle pulse effect on the document icon and a loading progress bar that grows smoothly. Do NOT use frantic spinning loaders.",
+    "page_transitions": "Fade in with a slight upward translation (y: 20 to 0) using framer-motion.",
+    "hover_effects": "Cards should have a subtle y-axis lift (-translate-y-1) and increased shadow depth on hover."
+  },
+  "visual_enhancers": {
+    "noise_texture": "Apply a very subtle SVG noise overlay fixed to the body background (opacity 2-3%) to give a paper-like, tactile feel.",
+    "icons": "Use @phosphor-icons/react (Duotone or Regular weight). They feel more premium and slightly rounded compared to standard icons.",
+    "glassmorphism": "Used sparingly. Only on sticky navigation or floating action bars: bg-white/70 backdrop-blur-xl border-b border-white/40."
+  },
+  "image_urls": {
+    "hero_background": {
+      "url": "None required. Use the off-white background with a subtle noise texture to keep the focus on the content and maintain a calm atmosphere.",
+      "description": "Minimalist clean background"
+    },
+    "consultation_placeholder": {
+      "url": "https://images.unsplash.com/photo-1758691461935-202e2ef6b69f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHw0fHxwYXRpZW50JTIwZG9jdG9yJTIwY29uc3VsdGF0aW9ufGVufDB8fHx8MTc4NjAzNTYxOXww&ixlib=rb-4.1.0&q=85",
+      "description": "Doctor talking to patient in an office",
+      "category": "Useful for any 'Talk to a human' or 'Share with doctor' CTA cards"
+    }
+  },
+  "dependencies_to_install": [
+    "yarn add @phosphor-icons/react",
+    "yarn add framer-motion",
+    "yarn add sonner"
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not use default Tailwind blue or generic neutral grays. Stick strictly to the warm earthy palette defined above.",
+    "Inject fonts via Google Fonts in index.css or layout: 'Cormorant Garamond' and 'Manrope'.",
+    "Ensure the dropzone takes up significant vertical space (e.g., min-h-[300px]) to feel substantial and inviting.",
+    "The lab results table MUST be easily scannable. Use the defined clinical_status colors for the badges to make normal vs abnormal instantly recognizable without causing alarm.",
+    "All interactive elements MUST include a data-testid attribute for testing.",
+    "Do NOT center align body text. Only center align the main hero uploader block and overarching H1.",
+    "Include a clear, visually distinct Medical Disclaimer section with high-tracking uppercase text to ensure legal/medical safety compliance.",
+    "For the 'Universal Key' requirement, implement the logic in the frontend calling the backend API seamlessly without asking the user for an API key."
+  ]
+}
