@@ -22,19 +22,24 @@ Follow-ups: rename the project to **ClarifyMed** (logo + header updated); add a 
 ## Routes
 | Frontend | Purpose |
 |---|---|
-| `/` | Hero + uploader + optional context + recent reports + disclaimer |
-| `/report/:id` | Analysing state → summary, key findings, lab table, doctor questions, next steps, chat |
-| `/history` | My History — all reports with date, top finding, flagged-value count |
+| `/login` | Email/password sign in + create account (public); "Fill in the demo account" helper |
+| `/` | Hero + uploader + optional context + recent reports + disclaimer (protected) |
+| `/report/:id` | Analysing state → summary, key findings, lab table, doctor questions, next steps, chat, **Share with my doctor** PDF export (protected) |
+| `/history` | My History — all of *your* reports with date, top finding, flagged-value count (protected) |
 
 | API | Purpose |
 |---|---|
+| `POST /api/auth/register` `login` `logout` `refresh` `forgot-password` `reset-password`, `GET /api/auth/me` | JWT auth over httpOnly cookies |
 | `POST /api/analyses` | multipart upload (`file`, `patient_context`) → `{analysis_id, status}`; analysis runs in background |
-| `GET /api/analyses?limit=` | list with `top_finding`, `lab_count`, `flagged_count` |
+| `GET /api/analyses?limit=` | current user's list with `top_finding`, `lab_count`, `flagged_count` |
 | `GET /api/analyses/{id}` | full report or `processing`/`failed` status |
+| `GET /api/analyses/{id}/summary.pdf` | one-page reportlab PDF: summary, flagged values, questions, disclaimer (409 while processing) |
 | `DELETE /api/analyses/{id}` | soft delete |
 | `GET /api/analyses/{id}/file` | original upload from object storage |
 | `POST /api/analyses/{id}/chat` | SSE stream of the grounded answer, persisted |
 | `GET /api/analyses/{id}/messages` | chat history |
+
+All `/api/analyses*` routes require auth and are scoped by `user_id` (other users get 404).
 
 ## Core requirements (static)
 - Plain-language explanation, never a diagnosis; prominent "not medical advice" disclaimer everywhere
@@ -52,15 +57,16 @@ Follow-ups: rename the project to **ClarifyMed** (logo + header updated); add a 
 
 ## Backlog
 **P0**
-- Auth (per-user history instead of a single shared list) — currently every visitor sees all reports
 - Delete-from-UI for a report (endpoint exists, no button)
+- Email delivery for password reset (link is currently only logged to the backend log)
 
 **P1**
 - Multi-page / multi-file reports and trend comparison across dates ("your ferritin over time")
-- Export/share: PDF or link of the plain-language summary to hand to a clinician
+- Shareable read-only link for a clinician (in addition to the PDF download)
 - Localisation of summaries (patient's preferred language)
 
 **P2**
 - Streaming the analysis (progressive summary) instead of poll-until-complete
 - Stream analysis file to a temp path rather than holding bytes in memory (code review note)
 - Persist LLM chat session server-side instead of stitching the last 10 messages
+- Prune demo/test analyses from the seeded demo account periodically
