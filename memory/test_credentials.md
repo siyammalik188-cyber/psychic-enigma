@@ -6,7 +6,9 @@ See `/app/auth_testing.md` for the full auth testing playbook.
 ## Seeded demo account (from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `/app/backend/.env`)
 | Email | Password | Role |
 |---|---|---|
-| `demo@clarifymed.app` | `Clarify123!` | admin (used as the demo patient; owns the existing sample analyses) |
+| `demo@clarifymed.app` (or your local `ADMIN_EMAIL`) | *(set via `ADMIN_PASSWORD` in your local, gitignored `.env` — never commit the real value)* | admin (used as the demo patient; owns the existing sample analyses) |
+
+**Note:** an earlier revision of this file committed the real demo password to source control. If that password is still in use anywhere, rotate it — a value that has ever been in git history should be treated as compromised.
 
 The login page has a **"Fill in the demo account"** button (`data-testid="use-demo-account-button"`)
 that pre-fills these credentials.

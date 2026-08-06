@@ -3,7 +3,7 @@
 Custom email/password JWT auth (httpOnly cookies) on FastAPI + MongoDB + React.
 
 ## Accounts
-- Seeded demo account: `demo@clarifymed.app` / `Clarify123!` (from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `/app/backend/.env`)
+- Seeded demo account: email/password come from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in your local, gitignored `/app/backend/.env` — never commit the real values here.
 - Register any new email to create a fresh patient account (password min 8 chars)
 
 ## Step 1: MongoDB verification
@@ -21,9 +21,9 @@ Verify: `password_hash` starts with `$2b$`; unique index on `users.email`; index
 
 ## Step 2: API testing (cookies)
 ```
-BASE=https://53cd976d-dd01-4ba3-8e9f-a7ae7088dc50.preview.emergentagent.com
+BASE=<your deployment base URL>
 curl -c /tmp/c.txt -X POST $BASE/api/auth/login -H "Content-Type: application/json" \
-  -d '{"email":"demo@clarifymed.app","password":"Clarify123!"}'
+  -d '{"email":"demo@clarifymed.app","password":"<ADMIN_PASSWORD from your local .env>"}'
 cat /tmp/c.txt          # expect access_token + refresh_token
 curl -b /tmp/c.txt $BASE/api/auth/me
 curl -b /tmp/c.txt $BASE/api/auth/refresh -X POST

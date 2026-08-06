@@ -51,7 +51,12 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_jwt_secret() -> str:
-    return os.environ["JWT_SECRET"]
+    secret = os.environ.get("JWT_SECRET")
+    if not secret or len(secret) < 32:
+        raise RuntimeError(
+            "JWT_SECRET environment variable must be set to a random value of at least 32 characters."
+        )
+    return secret
 
 
 def create_access_token(user_id: str, email: str) -> str:
@@ -173,9 +178,13 @@ async def register(payload: RegisterRequest, response: Response):
 
 
 def client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for", "")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    # Only trust X-Forwarded-For when we're actually deployed behind a proxy that
+    # sets it (e.g. a load balancer). Otherwise a client can spoof this header to
+    # get a fresh lockout bucket on every request and brute-force logins.
+    if os.environ.get("TRUST_PROXY_HEADERS", "").lower() in ("1", "true", "yes"):
+        forwarded = request.headers.get("x-forwarded-for", "")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
 
 
@@ -271,7 +280,10 @@ async def reset_password(payload: ResetPasswordRequest):
 
 async def seed_admin() -> None:
     email = (os.environ.get("ADMIN_EMAIL") or "admin@example.com").lower()
-    password = os.environ.get("ADMIN_PASSWORD") or "admin123"
+    password = os.environ.get("ADMIN_PASSWORD")
+    if not password:
+        logger.warning("ADMIN_PASSWORD not set; skipping admin account seeding.")
+        return
     existing = await db.users.find_one({"email": email})
     if existing is None:
         await db.users.insert_one({

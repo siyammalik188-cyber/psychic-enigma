@@ -324,10 +324,20 @@ app.include_router(auth.router)
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL") or "http://localhost:3000"
 
+# Explicit allow-list only. The previous allow_origin_regex trusted every
+# subdomain of the shared preview.emergentagent.com host, letting any other
+# tenant's preview app make credentialed cross-origin requests against this
+# API. Set CORS_EXTRA_ORIGINS to a comma-separated list to add specific
+# origins (e.g. this deployment's own preview URL) without reopening that hole.
+extra_origins = [
+    origin.strip()
+    for origin in os.environ.get("CORS_EXTRA_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL, "http://localhost:3000"],
-    allow_origin_regex=r"https://.*\.preview\.emergentagent\.com",
+    allow_origins=[FRONTEND_URL, "http://localhost:3000", *extra_origins],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
