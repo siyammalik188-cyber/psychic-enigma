@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background-color: #f7f5f0;
+  color: #1c211f;
+  font-family: "Manrope", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: #5c715e;
+  color: #f7f5f0;
+}
+
+.font-display {
+  font-family: "Cormorant Garamond", serif;
+}
+
+.prose-sage p {
+  margin-bottom: 0.85rem;
+  line-height: 1.75;
+}
+.prose-sage p:last-child {
+  margin-bottom: 0;
+}
+.prose-sage ul {
+  list-style: disc;
+  padding-left: 1.15rem;
+  margin-bottom: 0.85rem;
+}
+.prose-sage li {
+  margin-bottom: 0.3rem;
+}
+.prose-sage strong {
+  font-weight: 600;
+  color: #1c211f;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+.animate-breathe {
+  animation: breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes grow {
+  0% {
+    width: 4%;
+  }
+  70% {
+    width: 82%;
+  }
+  100% {
+    width: 94%;
+  }
+}
+.animate-grow {
+  animation: grow 26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.scroll-quiet::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll-quiet::-webkit-scrollbar-thumb {
+  background: #ddd9cc;
+  border-radius: 999px;
+}
