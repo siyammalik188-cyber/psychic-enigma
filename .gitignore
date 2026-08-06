@@ -32,8 +32,11 @@ yarn-error.log*
 
 frontend/dist/
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — real values stay local, examples are committed
+.env
+.env.*
+*.env
+!**/.env.example
 
 # vercel
 .vercel
@@ -42,9 +45,6 @@ frontend/dist/
 *.tsbuildinfo
 next-env.d.ts
 .netlify/
-.env
-.env.*
-*.env
 credentials.json
 *.key
 .credentials
